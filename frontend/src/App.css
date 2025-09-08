@@ -1,0 +1,115 @@
+/* General app background */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #928DAB, #1F1C2C);
+  color: black;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #FCFCF7;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #928DAB;
+}
+
+/* Main content */
+.content {
+  padding: 2rem;
+}
+
+/* Question container */
+.question {
+  background: #FEFAF1;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.question h2 {
+  margin-bottom: 1rem;
+}
+
+/* Question text */
+.question-box {
+  background: #FCFCF7;
+  padding: 1rem;
+  border-left: 4px solid #928DAB;
+  margin-bottom: 1.5rem;
+}
+
+/* Code block */
+.code-box {
+  background: #1F1C2C;
+  color: #FEFAF1;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+/* Button */
+.btn {
+  background: linear-gradient(135deg, #928DAB, #1F1C2C);
+  color: #FEFAF1;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+/* Output */
+.output-card {
+  background: #FCFCF7;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Welcome text */
+.welcome {
+  text-align: center;
+  background: #FEFAF1;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 3rem;
+}
