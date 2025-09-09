@@ -15,21 +15,18 @@ sys.set_int_max_str_digits(0)
 
 c = pow(b1, 2)
 d = pow(b2, 2) + 1
-primes = set()
+primes = []
 i = 0
 for n in range(c, d):
-    if n % 3 == 0 or n % 11 == 0 or n % 7 == 0 or n % 5 == 0 or n % 2 == 0:
-        status = False
-    else:
-        status = is_prime(n)
-    if status:
-        primes.add(n)
+    if n % 2 == 0 or n % 3 == 0 or n % 5 == 0 or n % 7 == 0 or n % 11 == 0:
+        continue
+    if is_prime(n):
+        primes.append(n)
         i += 1
         if i == 6: break
 print(primes, len(primes))
 `;
 
-// ✅ Internal CSS
 const styles = {
   container: {
     display: "flex",
@@ -47,11 +44,7 @@ const styles = {
     maxWidth: "900px",
     width: "100%",
   },
-  title: {
-    textAlign: "center",
-    marginBottom: "1rem",
-    color: "#1F1C2C",
-  },
+  title: { textAlign: "center", marginBottom: "1rem", color: "#1F1C2C" },
   questionBox: {
     background: "#FCFCF7",
     padding: "1rem",
@@ -91,9 +84,14 @@ const styles = {
     marginTop: "1rem",
     borderRadius: "8px",
     fontFamily: "monospace",
+    fontSize: "0.9rem",
+    lineHeight: "1.4",
     whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
+    maxHeight: "60vh",
+    overflowY: "auto",
   },
 };
 
@@ -106,14 +104,17 @@ function Q4() {
     setResult(null);
     try {
       const res = await axios.get("http://127.0.0.1:5000/api/q4");
-      if (res.data?.primes) {
-        setResult(res.data.primes.join(", "));
+      if (res.data?.primes_found_in_demo_range) {
+        // Only print numbers, each in a new line
+        setResult(res.data.primes_found_in_demo_range.join("\n"));
+      } else if (res.data?.primes) {
+        setResult(res.data.primes.join("\n"));
       } else {
-        setResult(JSON.stringify(res.data, null, 2));
+        setResult("No primes found");
       }
     } catch (err) {
-      setResult("Error fetching results");
       console.error(err);
+      setResult("Error fetching results");
     }
     setLoading(false);
   };
