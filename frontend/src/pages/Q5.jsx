@@ -18,7 +18,6 @@ for n in range(51, 1040):
             print(b)
 `;
 
-// ✅ Internal CSS
 const styles = {
   container: {
     display: "flex",
@@ -81,8 +80,12 @@ const styles = {
     borderRadius: "8px",
     fontFamily: "monospace",
     whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
+    maxHeight: "60vh", // scrollable vertical height
+    overflowY: "auto",
+    overflowX: "auto", // allow horizontal scroll if needed
   },
 };
 
@@ -95,8 +98,10 @@ function Q5() {
     setResult(null);
     try {
       const res = await axios.get("http://127.0.0.1:5000/api/q5");
-      if (res.data?.primes) {
-        setResult(res.data.primes.join(", "));
+      if (res.data?.results) {
+        // Show each number on a new line
+        const numbers = res.data.results.map((n) => n.toString());
+        setResult(numbers.join("\n"));
       } else {
         setResult(JSON.stringify(res.data, null, 2));
       }

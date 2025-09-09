@@ -116,9 +116,9 @@ def q5():
     results = []
     for n in range(51, 1040):
         if is_prime(n):
-            b = (pow(10, n) - 1) // 9
+            b = mpz((pow(10, n) - 1) // 9)  # mpz for huge numbers
             if is_prime(b):
-                results.append(b)
+                results.append(str(b))  # JSON-safe
     return jsonify({"results": results})
 
 
