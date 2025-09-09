@@ -33,21 +33,17 @@ def compute_q3():
 # ----------------------------
 @bp.route("/q1", methods=["GET"])
 def q1():
-    result = None
     for n in range(1000, 3001):
         left = ''.join(str(j) for j in range(1, n + 1))
         right = ''.join(str(j) for j in range(n - 1, 0, -1))
         b = int(left + right)
 
         if b % 3 == 0 or b % 11 == 0 or b % 7 == 0:
-            status = False
-        else:
-            status = is_prime(b)
+            continue
 
-        if status:
-            result = {"n": n, "kaprekar_number": b}
-            break
-    return jsonify(result)
+        if is_prime(b):
+            return jsonify({"result": {"n": n, "kaprekar_number": b}})
+
 
 
 # ----------------------------

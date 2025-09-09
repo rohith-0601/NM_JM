@@ -11,18 +11,18 @@ const pythonCode = `
 from gmpy2 import *
 import sys
 sys.set_int_max_str_digits(0)
+
 for n in range(1000, 3001):
     left = ''.join(str(j) for j in range(1, n+1))
     right = ''.join(str(j) for j in range(n-1, 0, -1))
     a = left + right
     b = int(a)
+
     if b % 3 == 0 or b % 11 == 0 or b % 7 == 0:
-        status = False
-    else:
-        status = is_prime(b)
-    if status:
-        print(n, status)
-        result = [n, b]
+        continue
+
+    if is_prime(b):
+        print("n =", n, "prime =", b)
         break
 `;
 
