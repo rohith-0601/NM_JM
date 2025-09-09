@@ -17,10 +17,10 @@ for n in range(2, 1040):
         if is_prime(b):
             results.append(b)
 
-print(results)  # will print list of primes
+print(results)
 `;
 
-// ✅ Internal CSS (styles object)
+// ✅ Internal CSS
 const styles = {
   container: {
     display: "flex",
@@ -61,8 +61,8 @@ const styles = {
     marginBottom: "1.5rem",
     fontFamily: "monospace",
     fontSize: "0.9rem",
-    whiteSpace: "pre-wrap",   // ✅ wrap code
-    wordBreak: "break-word",  // ✅ break long code lines
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
   },
   button: {
     background: "linear-gradient(135deg, #928DAB, #1F1C2C)",
@@ -83,8 +83,11 @@ const styles = {
     borderRadius: "8px",
     fontFamily: "monospace",
     whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
+    maxHeight: "50vh",
+    overflowY: "auto",
   },
 };
 
@@ -97,15 +100,16 @@ function Q2() {
     setResult(null);
     try {
       const res = await axios.get("http://127.0.0.1:5000/api/q2");
-      // ✅ Print numbers only
-      if (Array.isArray(res.data)) {
-        setResult(res.data.join(", "));
+
+      if (res.data.results && Array.isArray(res.data.results)) {
+        // ✅ Display each number on a new line
+        setResult(res.data.results.join("\n"));
       } else {
-        setResult(JSON.stringify(res.data, null, 2));
+        setResult("No results or invalid data");
       }
     } catch (err) {
-      setResult("Error fetching results");
       console.error(err);
+      setResult("Error fetching results");
     }
     setLoading(false);
   };

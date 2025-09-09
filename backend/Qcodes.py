@@ -49,6 +49,7 @@ def q1():
 # ----------------------------
 # Question 2
 # ----------------------------
+
 @bp.route("/q2", methods=["GET"])
 def q2():
     results = []
@@ -56,8 +57,9 @@ def q2():
         if is_prime(n):
             b = (pow(10, n) - 1) // 9
             if is_prime(b):
-                results.append(b)
+                results.append(str(b))  # ✅ convert to string
     return jsonify({"results": results})
+
 
 
 # ----------------------------
