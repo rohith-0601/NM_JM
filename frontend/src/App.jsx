@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 import Q1 from "./pages/Q1";
 import Q2 from "./pages/Q2";
@@ -14,33 +14,19 @@ import Home from "./pages/Home";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <div className="app">
         {/* Navbar */}
         <nav className="navbar">
           <h1 className="logo">Prime Numbers Assignment</h1>
           <ul className="nav-links">
-            <li>
-              <Link to="/q1">Q1</Link>
-            </li>
-            <li>
-              <Link to="/q2">Q2</Link>
-            </li>
-            <li>
-              <Link to="/q3">Q3</Link>
-            </li>
-            <li>
-              <Link to="/q4">Q4</Link>
-            </li>
-            <li>
-              <Link to="/q5">Q5</Link>
-            </li>
-            <li>
-              <Link to="/q6">Q6</Link>
-            </li>
-            <li>
-              <Link to="/q7">Q7</Link>
-            </li>
+            <li><Link to="/q1">Q1</Link></li>
+            <li><Link to="/q2">Q2</Link></li>
+            <li><Link to="/q3">Q3</Link></li>
+            <li><Link to="/q4">Q4</Link></li>
+            <li><Link to="/q5">Q5</Link></li>
+            <li><Link to="/q6">Q6</Link></li>
+            <li><Link to="/q7">Q7</Link></li>
           </ul>
         </nav>
 
@@ -58,7 +44,7 @@ function App() {
           </Routes>
         </div>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 

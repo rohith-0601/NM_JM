@@ -12,7 +12,7 @@ function Home() {
         statement, Python solution, and computed results.
       </p>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+      <div className="question-buttons">
         <Link to="/q1"><button className="btn">Question 1</button></Link>
         <Link to="/q2"><button className="btn">Question 2</button></Link>
         <Link to="/q3"><button className="btn">Question 3</button></Link>

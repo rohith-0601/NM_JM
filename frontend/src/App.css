@@ -1,9 +1,14 @@
-/* General app background */
+/* Reset + Global */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #928DAB, #1F1C2C);
   color: black;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+  padding: 0;
 }
 
 /* Navbar */
@@ -22,6 +27,7 @@ body {
 .logo {
   margin: 0;
   font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .nav-links {
@@ -54,18 +60,20 @@ body {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  margin-top: 1rem;
 }
 
 .question h2 {
   margin-bottom: 1rem;
 }
 
-/* Question text */
+/* Question text box */
 .question-box {
   background: #FCFCF7;
   padding: 1rem;
   border-left: 4px solid #928DAB;
   margin-bottom: 1.5rem;
+  border-radius: 6px;
 }
 
 /* Code block */
@@ -76,9 +84,11 @@ body {
   border-radius: 8px;
   overflow-x: auto;
   margin-bottom: 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
 }
 
-/* Button */
+/* Buttons */
 .btn {
   background: linear-gradient(135deg, #928DAB, #1F1C2C);
   color: #FEFAF1;
@@ -87,14 +97,24 @@ body {
   font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
 
 .btn:hover {
-  opacity: 0.85;
+  transform: translateY(-2px);
+  opacity: 0.9;
 }
 
-/* Output */
+/* Button container (Home) */
+.question-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+/* Output box */
 .output-card {
   background: #FCFCF7;
   padding: 1rem;
@@ -105,11 +125,12 @@ body {
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* Welcome text */
+/* Welcome section */
 .welcome {
   text-align: center;
   background: #FEFAF1;
   padding: 2rem;
   border-radius: 12px;
   margin-top: 3rem;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }

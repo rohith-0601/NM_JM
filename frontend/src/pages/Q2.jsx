@@ -9,14 +9,15 @@ const pythonCode = `
 from gmpy2 import *
 import sys
 sys.set_int_max_str_digits(0)
+
 results = []
 for n in range(2, 1040):
     if is_prime(n):
         b = (pow(10, n) - 1) // 9
-        status = is_prime(b)
-        if status:
-            print(b)
+        if is_prime(b):
             results.append(b)
+
+print(results)  # will print list of primes
 `;
 
 function Q2() {
