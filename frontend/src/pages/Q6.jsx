@@ -4,23 +4,14 @@ import axios from "axios";
 const questionText = `
 Check whether given numbers constructed with Mersenne primes
 form perfect numbers using the sigma function.
+Only the resulting numbers (N) will be displayed.
 `;
 
 const pythonCode = `
 def check_perfect(p, mprime):
     n = (1 << (p - 1)) * mprime
-    s1 = (1 << p) - 1
-    s2 = mprime + 1
-    total = s1 * s2
-    ok = (total == 2 * n)
-    print("p:", p)
-    print("mersenne_prime:", mprime)
-    print("N:", n)
-    print("sigma_part1:", s1)
-    print("sigma_part2:", s2)
-    print("sigma(N):", total)
-    print("2N:", 2 * n)
-    print("result:", "perfect" if ok else "not perfect")
+    ok = ((1 << p) - 1) * (mprime + 1) == 2 * n
+    print(n)
 `;
 
 const styles = {
@@ -84,13 +75,13 @@ const styles = {
     marginTop: "1rem",
     borderRadius: "8px",
     fontFamily: "monospace",
-    whiteSpace: "pre-wrap",
+    whiteSpace: "pre-wrap",  // allows wrapping
+    wordBreak: "break-word", // ensures long numbers wrap
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
-    maxHeight: "60vh",
-    overflowY: "auto",
   },
 };
+
 
 function Q6() {
   const [result, setResult] = useState(null);
@@ -100,27 +91,14 @@ function Q6() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/q6");
+      const res = await axios.get("http://127.0.0.1:5001/api/q6");
 
       if (res.data?.results) {
-        // Format each result as readable text
-        const formatted = res.data.results
-          .map((r, idx) => {
-            return `Result ${idx + 1}:\n` +
-              `p: ${r.p}\n` +
-              `mersenne_prime: ${r.mersenne_prime}\n` +
-              `N: ${r.N}\n` +
-              `sigma_part1: ${r.sigma_part1}\n` +
-              `sigma_part2: ${r.sigma_part2}\n` +
-              `sigma(N): ${r.sigma_N}\n` +
-              `2N: ${r["2N"]}\n` +
-              `result: ${r.result}\n`;
-          })
-          .join("\n---------------------------\n");
-
-        setResult(formatted);
+        // Extract only the numbers N
+        const numbers = res.data.results.map((r) => r.N);
+        setResult(numbers.join("\n"));
       } else {
-        setResult(JSON.stringify(res.data, null, 2));
+        setResult("No numbers found");
       }
     } catch (err) {
       setResult("Error fetching results");

@@ -112,7 +112,7 @@ function Q3() {
     setBValues({ b1: null, b2: null });
 
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/q3");
+      const res = await axios.get("http://127.0.0.1:5001/api/q3");
       if (res.data?.results) {
         setResult(res.data.results.map((r) => r.prime)); // array of strings
         setBValues({ b1: res.data.b1, b2: res.data.b2 });

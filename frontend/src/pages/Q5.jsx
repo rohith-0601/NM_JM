@@ -97,7 +97,7 @@ function Q5() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/q5");
+      const res = await axios.get("http://127.0.0.1:5001/api/q5");
       if (res.data?.results) {
         // Show each number on a new line
         const numbers = res.data.results.map((n) => n.toString());

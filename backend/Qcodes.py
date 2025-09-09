@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 import sys, random
-from gmpy2 import is_prime, mpz
+from gmpy2 import is_prime, mpz,next_prime
 
 
 bp = Blueprint("qcodes", __name__, url_prefix="/api")
@@ -163,23 +163,50 @@ def q6():
 # ----------------------------
 # Question 7
 # ----------------------------
+
+
+
+
 @bp.route("/q7", methods=["GET"])
 def q7():
-    f = random.randint(10**25, 10**26)
-    c = f
-    d = (c + 1) ** 2
-    c = c ** 2
+    # Generate a random 50-digit odd number
+    lower = 10**49
+    upper = 10**50 - 1
+    N = random.randrange(lower, upper)
+    if N % 2 == 0:
+        N += 1
+    N = mpz(N)
 
-    primes = []
-    i = 0
-    for n in range(c, d):
-        if n % 3 == 0 or n % 11 == 0 or n % 7 == 0 or n % 5 == 0 or n % 2 == 0:
-            status = False
-        else:
-            status = is_prime(n)
-        if status:
-            primes.append(n)
-            i += 1
-            if i == 2:
-                break
-    return jsonify({"random_base": f, "primes": primes, "count": len(primes)})
+    # Weak Goldbach decomposition: n = p1 + p2 + p3
+    def weak_goldbach_three_primes(n, trials=10000):
+        if n <= 5 or n % 2 == 0:
+            return None
+        for p1 in [3, 5, 7, 11, 13, 17, 19]:
+            remainder = n - p1
+            if remainder % 2 != 0:
+                continue
+            midpoint = remainder // 2
+            candidate = next_prime(midpoint)
+            for _ in range(trials):
+                p2 = candidate
+                p3 = remainder - p2
+                if p3 > 1 and is_prime(p3):
+                    return (int(p1), int(p2), int(p3))
+                candidate = next_prime(candidate)
+        return None
+
+    triple = weak_goldbach_three_primes(N)
+
+    if triple:
+        response = {
+            "random_base": str(N),
+            "primes_triple": [str(triple[0]), str(triple[1]), str(triple[2])]
+        }
+    else:
+        response = {
+            "random_base": str(N),
+            "primes_triple": [],
+            "message": "No decomposition found (try increasing trials)"
+        }
+
+    return jsonify(response)

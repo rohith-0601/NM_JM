@@ -99,7 +99,7 @@ function Q2() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/q2");
+      const res = await axios.get("http://127.0.0.1:5001/api/q2");
 
       if (res.data.results && Array.isArray(res.data.results)) {
         // ✅ Display each number on a new line

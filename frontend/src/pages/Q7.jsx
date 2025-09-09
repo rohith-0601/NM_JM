@@ -2,34 +2,47 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const questionText = `
-Pick a random 26-digit number f, square it (c = f^2),
-and check for the first 2 primes in the range [c, (c+1)^2].
+Generate a random 50-digit odd number and attempt to decompose it
+into a sum of three primes using a weak Goldbach approach.
 `;
 
 const pythonCode = `
+from gmpy2 import mpz, is_prime, next_prime
 import random
-from gmpy2 import *
-import sys
-sys.set_int_max_str_digits(0)
-f = random.randint(10**25, 10**26)
-c = f
-d = (c + 1)**2
-c = c**2
-primes = set()
-i = 0
-for n in range(c, d):
-    if n % 3 == 0 or n % 11 == 0 or n % 7 == 0 or n % 5 == 0 or n % 2 == 0:
-        status = False
-    else:
-        status = is_prime(n)
-    if status:
-        primes.add(n)
-        i += 1
-        if i == 2: break
-print(primes, len(primes))
+
+# Generate a random 50-digit odd number
+lower = 10**49
+upper = 10**50 - 1
+N = random.randrange(lower, upper)
+if N % 2 == 0:
+    N += 1
+
+# Attempt weak Goldbach decomposition
+def weak_goldbach_three_primes(n, trials=10000):
+    if n <= 5 or n % 2 == 0:
+        return None
+    for p1 in [3,5,7,11,13,17,19]:
+        remainder = n - p1
+        if remainder % 2 != 0:
+            continue
+        midpoint = remainder // 2
+        candidate = next_prime(midpoint)
+        for _ in range(trials):
+            p2 = candidate
+            p3 = remainder - p2
+            if p3 > 1 and is_prime(p3):
+                return (p1, p2, p3)
+            candidate = next_prime(candidate)
+    return None
+
+triple = weak_goldbach_three_primes(mpz(N))
+print("Random number:", N)
+if triple:
+    print("Primes triple:", triple)
+else:
+    print("No decomposition found")
 `;
 
-// ✅ Internal CSS
 const styles = {
   container: {
     display: "flex",
@@ -92,6 +105,7 @@ const styles = {
     borderRadius: "8px",
     fontFamily: "monospace",
     whiteSpace: "pre-wrap",
+    wordWrap: "break-word", // ✅ wrap long numbers
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
   },
@@ -105,11 +119,17 @@ function Q7() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/q7");
-      if (res.data?.output) {
-        setResult(res.data.output);
+      const res = await axios.get("http://127.0.0.1:5001/api/q7");
+      if (res.data?.random_base) {
+        let output = `Random number:\n${res.data.random_base}\n\n`;
+        if (res.data.primes_triple?.length) {
+          output += `Primes triple:\n${res.data.primes_triple.join(", ")}`;
+        } else {
+          output += "No decomposition found";
+        }
+        setResult(output);
       } else {
-        setResult(JSON.stringify(res.data, null, 2));
+        setResult("No output received");
       }
     } catch (err) {
       setResult("Error fetching results");

@@ -103,7 +103,7 @@ function Q4() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/q4");
+      const res = await axios.get("http://127.0.0.1:5001/api/q4");
       if (res.data?.primes_found_in_demo_range) {
         // Only print numbers, each in a new line
         setResult(res.data.primes_found_in_demo_range.join("\n"));
