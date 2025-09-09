@@ -20,6 +20,7 @@ function App() {
         <nav className="navbar">
           <h1 className="logo">Prime Numbers Assignment</h1>
           <ul className="nav-links">
+            <li><Link to="/">Home</Link></li>
             <li><Link to="/q1">Q1</Link></li>
             <li><Link to="/q2">Q2</Link></li>
             <li><Link to="/q3">Q3</Link></li>
