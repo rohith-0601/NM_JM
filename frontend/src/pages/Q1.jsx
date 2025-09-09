@@ -26,14 +26,84 @@ for n in range(1000, 3001):
         break
 `;
 
+// ✅ Internal CSS
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "75vh",
+    background: "linear-gradient(135deg, #928DAB, #1F1C2C)",
+    padding: "20px",
+  },
+  card: {
+    background: "#FEFAF1",
+    padding: "2rem",
+    borderRadius: "12px",
+    boxShadow: "0 6px 12px rgba(0,0,0,0.15)",
+    maxWidth: "900px",
+    width: "100%",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: "1rem",
+    color: "#1F1C2C",
+  },
+  questionBox: {
+    background: "#FCFCF7",
+    padding: "1rem",
+    borderLeft: "4px solid #928DAB",
+    marginBottom: "1.5rem",
+    borderRadius: "6px",
+    fontSize: "1rem",
+    lineHeight: "1.6",
+    color: "#333",
+  },
+  codeBox: {
+    background: "#1F1C2C",
+    color: "#FEFAF1",
+    padding: "1rem",
+    borderRadius: "8px",
+    marginBottom: "1.5rem",
+    fontFamily: "monospace",
+    fontSize: "0.9rem",
+    whiteSpace: "pre-wrap",   // ✅ wrap code lines
+    wordBreak: "break-word",  // ✅ break long words
+  },
+  button: {
+    background: "linear-gradient(135deg, #928DAB, #1F1C2C)",
+    color: "#FEFAF1",
+    border: "none",
+    padding: "0.7rem 1.5rem",
+    fontSize: "1rem",
+    borderRadius: "8px",
+    cursor: "pointer",
+    display: "block",
+    margin: "0 auto",
+    transition: "0.3s",
+  },
+};
+
 function Q1() {
   return (
-    <QuestionPage
-      title="Question 1"
-      questionText={questionText}
-      pythonCode={pythonCode}
-      apiEndpoint="http://127.0.0.1:5000/api/q1"
-    />
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Question 1</h2>
+        <p style={styles.questionBox}>{questionText}</p>
+
+        <div style={styles.codeBox}>
+          <pre>{pythonCode}</pre>
+        </div>
+
+        <button
+          style={styles.button}
+          onMouseOver={(e) => (e.target.style.opacity = 0.8)}
+          onMouseOut={(e) => (e.target.style.opacity = 1)}
+        >
+          Run Code ▶
+        </button>
+      </div>
+    </div>
   );
 }
 
