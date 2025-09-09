@@ -1,5 +1,5 @@
-import React from "react";
-import QuestionPage from "../components/QuestionPage";
+import React, { useState } from "react";
+import axios from "axios";
 
 const questionText = `
 A prime number is generated using a Kaprekar pattern:
@@ -82,9 +82,42 @@ const styles = {
     margin: "0 auto",
     transition: "0.3s",
   },
+  outputBox: {
+    background: "#FCFCF7",
+    padding: "1rem",
+    marginTop: "1rem",
+    borderRadius: "8px",
+    fontFamily: "monospace",
+    whiteSpace: "pre-wrap",
+    wordWrap: "break-word",
+    boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
+    color: "#000",
+  },
 };
 
 function Q1() {
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const runCode = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+      // 🔹 Adjust port if you’re running Flask on something other than 5000
+      const res = await axios.get("http://127.0.0.1:5001/api/q1");
+      if (res.data?.result) {
+        const { n, kaprekar_number } = res.data.result;
+        setResult(`n = ${n}\nKaprekar prime = ${kaprekar_number}`);
+      } else {
+        setResult("No result received");
+      }
+    } catch (err) {
+      setResult("Error fetching results");
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -99,9 +132,12 @@ function Q1() {
           style={styles.button}
           onMouseOver={(e) => (e.target.style.opacity = 0.8)}
           onMouseOut={(e) => (e.target.style.opacity = 1)}
+          onClick={runCode}
         >
-          Run Code ▶
+          {loading ? "Running..." : "Run Code ▶"}
         </button>
+
+        {result && <div style={styles.outputBox}>{result}</div>}
       </div>
     </div>
   );
