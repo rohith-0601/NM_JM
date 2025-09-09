@@ -11,8 +11,8 @@ sys.set_int_max_str_digits(0)
 # ----------------------------
 def compute_q3():
     primes = []
-    b1 = 0
-    b2 = 0
+    b1 = None
+    b2 = None
     for n in range(2201, 2300):
         if n % 4 != 0:
             b = pow(2, n) - 1
@@ -21,11 +21,11 @@ def compute_q3():
             else:
                 status = is_prime(b)
             if status:
-                if b1 == 0:
-                    b1 = b
+                if b1 is None:
+                    b1 = str(b)  # convert to string
                 else:
-                    b2 = b
-                primes.append({"n": n, "prime": b})
+                    b2 = str(b)  # convert to string
+                primes.append({"n": n, "prime": str(b)})  # convert prime to string
     return {"results": primes, "b1": b1, "b2": b2}
 
 # ----------------------------

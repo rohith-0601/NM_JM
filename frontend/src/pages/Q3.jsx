@@ -35,7 +35,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: "75vh",   // 👈 As you asked
+    minHeight: "75vh",
     background: "linear-gradient(135deg, #928DAB, #1F1C2C)",
     padding: "20px",
   },
@@ -95,26 +95,35 @@ const styles = {
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
   },
+  primeItem: {
+    marginBottom: "0.5rem",
+    wordBreak: "break-all", // ensure very long numbers wrap nicely
+  },
 };
 
 function Q3() {
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState([]);
+  const [bValues, setBValues] = useState({ b1: null, b2: null });
   const [loading, setLoading] = useState(false);
 
   const runCode = async () => {
     setLoading(true);
-    setResult(null);
+    setResult([]);
+    setBValues({ b1: null, b2: null });
+
     try {
       const res = await axios.get("http://127.0.0.1:5000/api/q3");
       if (res.data?.results) {
-        setResult(res.data.results.map((r) => r.prime).join(", "));
+        setResult(res.data.results.map((r) => r.prime)); // array of strings
+        setBValues({ b1: res.data.b1, b2: res.data.b2 });
       } else {
-        setResult(JSON.stringify(res.data, null, 2));
+        setResult([JSON.stringify(res.data, null, 2)]);
       }
     } catch (err) {
-      setResult("Error fetching results");
+      setResult(["Error fetching results"]);
       console.error(err);
     }
+
     setLoading(false);
   };
 
@@ -137,7 +146,17 @@ function Q3() {
           {loading ? "Running..." : "Run Code ▶"}
         </button>
 
-        {result && <div style={styles.outputBox}>{result}</div>}
+        {result.length > 0 && (
+          <div style={styles.outputBox}>
+            {bValues.b1 && <div style={styles.primeItem}>b1: {bValues.b1}</div>}
+            {bValues.b2 && <div style={styles.primeItem}>b2: {bValues.b2}</div>}
+            {result.map((prime, i) => (
+              <div key={i} style={styles.primeItem}>
+                {prime}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
