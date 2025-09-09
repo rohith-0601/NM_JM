@@ -26,7 +26,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: "100vh",
+    minHeight: "80vh",
     background: "linear-gradient(135deg, #928DAB, #1F1C2C)",
     padding: "20px",
   },
