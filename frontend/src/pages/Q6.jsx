@@ -7,32 +7,22 @@ form perfect numbers using the sigma function.
 `;
 
 const pythonCode = `
-import sys
-sys.set_int_max_str_digits(0)
-
 def check_perfect(p, mprime):
     n = (1 << (p - 1)) * mprime
     s1 = (1 << p) - 1
     s2 = mprime + 1
     total = s1 * s2
     ok = (total == 2 * n)
-
-    print("\\ncheck for p =", p)
-    print("mersenne prime :", mprime)
-    print("number N       :", n)
-    print("sigma part1    :", s1)
-    print("sigma part2    :", s2)
-    print("sigma(N)       :", total)
-    print("2N             :", 2 * n)
-    print("result         :", "perfect" if ok else "not perfect")
-
-m1 = int("14759799...71007")
-m2 = int("44608755...361")
-check_perfect(2203, m1)
-check_perfect(2281, m2)
+    print("p:", p)
+    print("mersenne_prime:", mprime)
+    print("N:", n)
+    print("sigma_part1:", s1)
+    print("sigma_part2:", s2)
+    print("sigma(N):", total)
+    print("2N:", 2 * n)
+    print("result:", "perfect" if ok else "not perfect")
 `;
 
-// ✅ Internal CSS
 const styles = {
   container: {
     display: "flex",
@@ -97,6 +87,8 @@ const styles = {
     whiteSpace: "pre-wrap",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
+    maxHeight: "60vh",
+    overflowY: "auto",
   },
 };
 
@@ -109,8 +101,24 @@ function Q6() {
     setResult(null);
     try {
       const res = await axios.get("http://127.0.0.1:5000/api/q6");
-      if (res.data?.output) {
-        setResult(res.data.output);
+
+      if (res.data?.results) {
+        // Format each result as readable text
+        const formatted = res.data.results
+          .map((r, idx) => {
+            return `Result ${idx + 1}:\n` +
+              `p: ${r.p}\n` +
+              `mersenne_prime: ${r.mersenne_prime}\n` +
+              `N: ${r.N}\n` +
+              `sigma_part1: ${r.sigma_part1}\n` +
+              `sigma_part2: ${r.sigma_part2}\n` +
+              `sigma(N): ${r.sigma_N}\n` +
+              `2N: ${r["2N"]}\n` +
+              `result: ${r.result}\n`;
+          })
+          .join("\n---------------------------\n");
+
+        setResult(formatted);
       } else {
         setResult(JSON.stringify(res.data, null, 2));
       }
