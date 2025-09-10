@@ -102,12 +102,13 @@ def compute_q3_range(start_n=2201, end_n=2300):
             results.append({"n": n, "prime": str(m)})
     return {"results": results, "b1": b1, "b2": b2}
 
-@bp.route("/q3", methods=["GET"])
+@bp.route("/q3", methods=["POST"])
 def q3():
-    # Allow overriding the range for testing by query params
-    start_n = int(request.args.get("start", 2201))
-    end_n = int(request.args.get("end", 2300))
+    data = request.json
+    start_n = int(data.get("start", 2201))
+    end_n = int(data.get("end", 2300))
     return jsonify(compute_q3_range(start_n, end_n))
+
 
 
 # ---------- Q4 ----------
