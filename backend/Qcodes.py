@@ -111,14 +111,44 @@ def q4():
 # ----------------------------
 # Question 5
 # ----------------------------
+
+
+def make_palindromes(num_digits):
+    mid = num_digits // 2
+    lower = 10 ** (mid - 1)
+    upper = 10 ** mid
+
+    for base in range(lower, upper):
+        left = str(base)
+        right = left[::-1]
+        if num_digits % 2 == 1:
+            pal = left + right[1:]  # odd-length
+        else:
+            pal = left + right      # even-length
+        yield int(pal)
+
+def find_pal_prime(min_digits=3, how_many=5):
+    results = []
+    digits = min_digits if min_digits % 2 == 1 else min_digits + 1  # ensure odd length
+    count = 0
+
+    while count < how_many:
+        for candidate in make_palindromes(digits):
+            if is_prime(candidate):
+                results.append({
+                    "prime_palindrome": str(candidate),
+                    "size": len(str(candidate))
+                })
+                count += 1
+                if count >= how_many:
+                    break
+        digits += 2  # next odd digit length
+
+    return results
+
 @bp.route("/q5", methods=["GET"])
 def q5():
-    results = []
-    for n in range(51, 1040):
-        if is_prime(n):
-            b = mpz((pow(10, n) - 1) // 9)  # mpz for huge numbers
-            if is_prime(b):
-                results.append(str(b))  # JSON-safe
+    results = find_pal_prime(min_digits=53, how_many=5)
     return jsonify({"results": results})
 
 

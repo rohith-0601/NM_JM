@@ -10,11 +10,11 @@ const pythonCode = `
 from gmpy2 import *
 import sys
 sys.set_int_max_str_digits(0)
+
 for n in range(51, 1040):
     if is_prime(n):
         b = (pow(10, n) - 1) // 9
-        status = is_prime(b)
-        if status:
+        if is_prime(b):
             print(b)
 `;
 
@@ -83,9 +83,9 @@ const styles = {
     wordBreak: "break-word",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
-    maxHeight: "60vh", // scrollable vertical height
+    maxHeight: "60vh",
     overflowY: "auto",
-    overflowX: "auto", // allow horizontal scroll if needed
+    overflowX: "auto",
   },
 };
 
@@ -98,16 +98,17 @@ function Q5() {
     setResult(null);
     try {
       const res = await axios.get("http://127.0.0.1:5001/api/q5");
+
       if (res.data?.results) {
-        // Show each number on a new line
-        const numbers = res.data.results.map((n) => n.toString());
+        // Ensure we handle very large numbers as strings
+        const numbers = res.data.results.map((num) => num.toString());
         setResult(numbers.join("\n"));
       } else {
         setResult(JSON.stringify(res.data, null, 2));
       }
     } catch (err) {
-      setResult("Error fetching results");
       console.error(err);
+      setResult("Error fetching results");
     }
     setLoading(false);
   };
