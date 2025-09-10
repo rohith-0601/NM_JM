@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const questionText = `
-Find primes of the form (10^n - 1) / 9 where n itself is prime,
-for n between 51 and 1040.
+Generate odd-length palindromic primes.
+You can choose the minimum number of digits and how many primes to find.
 `;
 
 const pythonCode = `
-from gmpy2 import *
-import sys
-sys.set_int_max_str_digits(0)
-
-for n in range(51, 1040):
-    if is_prime(n):
-        b = (pow(10, n) - 1) // 9
-        if is_prime(b):
-            print(b)
+# Python backend generates odd-length palindromic primes
+def iter_palindromes_odd(num_digits):
+    half_len = (num_digits + 1) // 2
+    start = 10 ** (half_len - 1)
+    end = 10 ** half_len
+    for left in range(start, end):
+        s = str(left)
+        pal = s + s[-2::-1]
+        yield mpz(pal)
 `;
 
 const styles = {
@@ -35,11 +35,7 @@ const styles = {
     maxWidth: "900px",
     width: "100%",
   },
-  title: {
-    textAlign: "center",
-    marginBottom: "1rem",
-    color: "#1F1C2C",
-  },
+  title: { textAlign: "center", marginBottom: "1rem", color: "#1F1C2C" },
   questionBox: {
     background: "#FCFCF7",
     padding: "1rem",
@@ -60,6 +56,19 @@ const styles = {
     fontSize: "0.9rem",
     whiteSpace: "pre-wrap",
     wordBreak: "break-word",
+  },
+  inputRow: {
+    display: "flex",
+    gap: "1rem",
+    marginBottom: "1rem",
+    flexWrap: "wrap",
+  },
+  inputBox: {
+    padding: "0.5rem 0.7rem",
+    borderRadius: "6px",
+    border: "1px solid #928DAB",
+    fontSize: "1rem",
+    width: "120px",
   },
   button: {
     background: "linear-gradient(135deg, #928DAB, #1F1C2C)",
@@ -83,32 +92,47 @@ const styles = {
     wordBreak: "break-word",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
-    maxHeight: "60vh",
+    maxHeight: "50vh",
     overflowY: "auto",
-    overflowX: "auto",
+  },
+  timer: {
+    textAlign: "center",
+    marginBottom: "1rem",
+    fontWeight: "bold",
   },
 };
 
 function Q5() {
-  const [result, setResult] = useState(null);
+  const [minDigits, setMinDigits] = useState(3);
+  const [howMany, setHowMany] = useState(5);
+  const [result, setResult] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    let timer;
+    if (loading) {
+      setSeconds(0);
+      timer = setInterval(() => setSeconds((s) => s + 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [loading]);
 
   const runCode = async () => {
     setLoading(true);
-    setResult(null);
+    setResult([]);
     try {
-      const res = await axios.get("http://127.0.0.1:5001/api/q5");
-
+      const res = await axios.get("http://127.0.0.1:5001/api/q5", {
+        params: { min_digits: minDigits, how_many: howMany },
+      });
       if (res.data?.results) {
-        // Ensure we handle very large numbers as strings
-        const numbers = res.data.results.map((num) => num.toString());
-        setResult(numbers.join("\n"));
+        setResult(res.data.results);
       } else {
-        setResult(JSON.stringify(res.data, null, 2));
+        setResult(["No results found"]);
       }
     } catch (err) {
       console.error(err);
-      setResult("Error fetching results");
+      setResult(["Error fetching results"]);
     }
     setLoading(false);
   };
@@ -119,9 +143,30 @@ function Q5() {
         <h2 style={styles.title}>Question 5</h2>
         <p style={styles.questionBox}>{questionText}</p>
 
+        <div style={styles.inputRow}>
+          <input
+            type="number"
+            min="1"
+            style={styles.inputBox}
+            value={minDigits}
+            onChange={(e) => setMinDigits(parseInt(e.target.value))}
+            placeholder="Min Digits"
+          />
+          <input
+            type="number"
+            min="1"
+            style={styles.inputBox}
+            value={howMany}
+            onChange={(e) => setHowMany(parseInt(e.target.value))}
+            placeholder="How Many"
+          />
+        </div>
+
         <div style={styles.codeBox}>
           <pre>{pythonCode}</pre>
         </div>
+
+        {loading && <div style={styles.timer}>⏱ Time elapsed: {seconds}s</div>}
 
         <button
           style={styles.button}
@@ -132,7 +177,13 @@ function Q5() {
           {loading ? "Running..." : "Run Code ▶"}
         </button>
 
-        {result && <div style={styles.outputBox}>{result}</div>}
+        {result.length > 0 && (
+          <div style={styles.outputBox}>
+            {result.map((prime, i) => (
+              <div key={i}>{prime}</div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

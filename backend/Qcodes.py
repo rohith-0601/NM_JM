@@ -151,29 +151,33 @@ def q4():
 # Question 5
 # ----------------------------
 def iter_palindromes_odd(num_digits):
+    """Generate odd-length palindromes with given number of digits."""
     half_len = (num_digits + 1) // 2
     start = 10 ** (half_len - 1)
     end = 10 ** half_len
     for left in range(start, end):
         s = str(left)
-        pal = s + s[-2::-1]
+        pal = s + s[-2::-1]  # mirror excluding last digit
         yield mpz(pal)
 
 @bp.route("/q5", methods=["GET"])
 def q5():
-    min_digits = int(request.args.get("min_digits", 3))
-    how_many = int(request.args.get("how_many", 5))
+    # Read frontend-provided query parameters
+    min_digits = int(request.args.get("min_digits", 3))  # default 3
+    how_many = int(request.args.get("how_many", 5))      # default 5
 
+    # Ensure starting with an odd number of digits
     digits = min_digits if min_digits % 2 == 1 else min_digits + 1
     results = []
 
+    # Generate palindromes and check for primality
     while len(results) < how_many:
         for candidate in iter_palindromes_odd(digits):
             if is_prime(candidate):
                 results.append(str(candidate))
                 if len(results) >= how_many:
                     break
-        digits += 2
+        digits += 2  # go to next odd-length
 
     return jsonify({"results": results})
 
