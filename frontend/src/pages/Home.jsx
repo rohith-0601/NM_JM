@@ -9,7 +9,7 @@ function Home() {
         <h2>Welcome to Prime Numbers Assignment 🚀</h2>
         <p className="question-box">
           This project explores prime numbers through different mathematical
-          patterns and properties. Select any question below to see its problem
+          patterns and properties and python modules. Select any question below to see its problem
           statement, Python solution, and computed results.
         </p>
 
