@@ -1,18 +1,17 @@
-# optimized_qcodes.py
-from flask import Blueprint, jsonify, request
-import random
-import math
+from flask import Blueprint, request, jsonify
 from gmpy2 import mpz, is_prime, next_prime
+import random
 
-bp = Blueprint("qcodes", __name__, url_prefix="/api")
+bp = Blueprint("api", __name__, url_prefix="/api")  # single blueprint
 
 # ---------- utilities ----------
-# small primes for quick trial division / wheel skipping
-_SMALL_PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,
-                 101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199]
+_SMALL_PRIMES = [
+    2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,
+    73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,
+    157,163,167,173,179,181,191,193,197,199
+]
 
 def quick_composite_check(n: mpz) -> bool:
-    """Return True if n is obviously composite by small primes."""
     for p in _SMALL_PRIMES:
         if n == p:
             return False
@@ -21,38 +20,32 @@ def quick_composite_check(n: mpz) -> bool:
     return False
 
 def is_probable_prime(n: mpz) -> bool:
-    """Fast check: do small-prime sieve then gmpy2.is_prime (probable/primality test)."""
     if n < 2:
         return False
     if quick_composite_check(n):
         return False
-    # gmpy2.is_prime is fast and uses probable prime tests / deterministic checks for many sizes
     return bool(is_prime(n))
 
+
 # ---------- Q1 ----------
-# Find smallest n in [1000,3000] where b = concat(1..n..1) is prime (original intent).
-# Optimization: build string once per n, skip using banned small-moduli first.
 @bp.route("/q1", methods=["POST"])
 def q1():
     data = request.json
-    start = data.get("start", 1000)
-    end = data.get("end", 3000)
+    start = int(data.get("start", 1000))
+    end = int(data.get("end", 3000))
 
     for n in range(start, end + 1):
-        left = ''.join(str(j) for j in range(1, n+1))
-        right = ''.join(str(j) for j in range(n-1, 0, -1))
+        left = ''.join(str(j) for j in range(1, n + 1))
+        right = ''.join(str(j) for j in range(n - 1, 0, -1))
         b = mpz(left + right)
         if b % 3 == 0 or b % 7 == 0 or b % 11 == 0:
             continue
         if is_probable_prime(b):
             return jsonify({"result": {"n": n, "kaprekar_number": str(b)}})
-
     return jsonify({"result": None})
 
 
 # ---------- Q2 ----------
-# Repunit primes R_n = (10^n -1)/9 where n is prime
-# Only check when n is prime and use mpz pow.
 @bp.route("/q2", methods=["POST"])
 def q2():
     data = request.json
@@ -64,34 +57,23 @@ def q2():
         if not is_probable_prime(mpz(n)):
             continue
         rep = (mpz(10) ** n - 1) // 9
-        composite = False
-        for p in _SMALL_PRIMES:
-            if rep % p == 0 and rep != p:
-                composite = True
-                break
+        composite = any(rep % p == 0 and rep != p for p in _SMALL_PRIMES)
         if composite:
             continue
         if is_probable_prime(rep):
             results.append(str(rep))
-
     return jsonify({"results": results})
 
 
-
 # ---------- Q3 ----------
-# Compute Mersenne numbers 2^n - 1 in a range and return those which are prime.
-# Key optimization: M_n can only be prime if n is prime. Use bit shifts for 2^n - 1.
 def compute_q3_range(start_n=2201, end_n=2300):
     results = []
     b1 = None
     b2 = None
     for n in range(start_n, end_n + 1):
-        # Mersenne can be prime only if exponent is prime
         if not is_probable_prime(mpz(n)):
             continue
-        # compute M_n quickly using bit-shift
         m = (mpz(1) << n) - 1
-        # quick small-prime divisibility by known small divisors
         if m % 3 == 0 or m % 7 == 0 or m % 11 == 0:
             continue
         if is_probable_prime(m):
@@ -110,20 +92,9 @@ def q3():
     return jsonify(compute_q3_range(start_n, end_n))
 
 
-
 # ---------- Q4 ----------
-# Given two very large numbers (b1, b2) produced in Q3, search for primes starting at b1.
-# Rather than scanning every integer, use gmpy2.next_prime to jump to the next probable prime
-# and check primality; limit allows safe demo runs.
-# ----------------------------
-# Question 4
-# ----------------------------
-DEFAULT_B1 = mpz(
-    "1475979915214180235084898622737381736312066145333169775147771216478570297878078949377407337049389289382748507531496480477281264838760259191814463365330269540496961201113430156902396093989090226259326935025281409614983499388222831448598601834318536230923772641390209490231836446899608210795482963763094236630945410832793769905399982457186322944729636418890623372171723742105636440368218459649632948538696905872650486914434637457507280441823676813517852099348660847172579408422316678097670224011990280170474894487426924742108823536808485072502240519452587542875349976558572670229633962575212637477897785501552646522609988869914013540483809865681250419497686697771007"
-)
-DEFAULT_B2 = mpz(
-    "446087557183758429571151706402101809886208632412859901111991219963404685792820473369112545269003989026153245931124316702395758705693679364790903497461147071065254193353938124978226307947312410798874869040070279328428810311754844108094878252494866760969586998128982645877596028979171536962503068429617331702184750324583009171832104916050157628886606372145501702225925125224076829605427173573964812995250569412480720738476855293681666712844831190877620606786663862190240118570736831901886479225810414714078935386562497968178729127629594924411960961386713946279899275006954917139758796061223803393537381034666494402951052059047968693255388647930440925104186817009640171764133172418132836351"
-)
+DEFAULT_B1 = mpz("1475979915214180235084898622737381736312066145333169775147771216478570297878078949377407337049389289382748507531496480477281264838760259191814463365330269540496961201113430156902396093989090226259326935025281409614983499388222831448598601834318536230923772641390209490231836446899608210795482963763094236630945410832793769905399982457186322944729636418890623372171723742105636440368218459649632948538696905872650486914434637457507280441823676813517852099348660847172579408422316678097670224011990280170474894487426924742108823536808485072502240519452587542875349976558572670229633962575212637477897785501552646522609988869914013540483809865681250419497686697771007")
+DEFAULT_B2 = mpz("446087557183758429571151706402101809886208632412859901111991219963404685792820473369112545269003989026153245931124316702395758705693679364790903497461147071065254193353938124978226307947312410798874869040070279328428810311754844108094878252494866760969586998128982645877596028979171536962503068429617331702184750324583009171832104916050157628886606372145501702225925125224076829605427173573964812995250569412480720738476855293681666712844831190877620606786663862190240118570736831901886479225810414714078935386562497968178729127629594924411960961386713946279899275006954917139758796061223803393537381034666494402951052059047968693255388647930440925104186817009640171764133172418132836351")
 
 @bp.route("/q4", methods=["POST"])
 def q4():
@@ -147,47 +118,33 @@ def q4():
     })
 
 
-# ----------------------------
-# Question 5
-# ----------------------------
+# ---------- Q5 ----------
 def iter_palindromes_odd(num_digits):
-    """Generate odd-length palindromes with given number of digits."""
     half_len = (num_digits + 1) // 2
     start = 10 ** (half_len - 1)
     end = 10 ** half_len
     for left in range(start, end):
         s = str(left)
-        pal = s + s[-2::-1]  # mirror excluding last digit
+        pal = s + s[-2::-1]
         yield mpz(pal)
 
 @bp.route("/q5", methods=["GET"])
 def q5():
-    # Read frontend-provided query parameters
-    min_digits = int(request.args.get("min_digits", 3))  # default 3
-    how_many = int(request.args.get("how_many", 5))      # default 5
-
-    # Ensure starting with an odd number of digits
+    min_digits = int(request.args.get("min_digits", 3))
+    how_many = int(request.args.get("how_many", 5))
     digits = min_digits if min_digits % 2 == 1 else min_digits + 1
     results = []
-
-    # Generate palindromes and check for primality
     while len(results) < how_many:
         for candidate in iter_palindromes_odd(digits):
             if is_prime(candidate):
                 results.append(str(candidate))
                 if len(results) >= how_many:
                     break
-        digits += 2  # go to next odd-length
-
+        digits += 2
     return jsonify({"results": results})
 
+
 # ---------- Q6 ----------
-# Verify the perfect number identity for given p and mersenne m.
-from flask import Blueprint, request, jsonify
-from gmpy2 import mpz
-
-bp = Blueprint("questions", __name__)
-
 def check_perfect(p, mprime):
     n = (mpz(1) << (p - 1)) * mprime
     s1 = (mpz(1) << p) - 1
@@ -201,13 +158,8 @@ def check_perfect(p, mprime):
         "result": "perfect" if (s1 * s2) == 2 * n else "not perfect"
     }
 
-# Default Mersenne primes
-DEFAULT_M1 = mpz(
-    "1475979915214180235084898622737381736312066145333169775147771216478570297878078949377407337049389289382748507531496480477281264838760259191814463365330269540496961201113430156902396093989090226259326935025281409614983499388222831448598601834318536230923772641390209490231836446899608210795482963763094236630945410832793769905399982457186322944729636418890623372171723742105636440368218459649632948538696905872650486914434637457507280441823676813517852099348660847172579408422316678097670224011990280170474894487426924742108823536808485072502240519452587542875349976558572670229633962575212637477897785501552646522609988869914013540483809865681250419497686697771007"
-)
-DEFAULT_M2 = mpz(
-    "446087557183758429571151706402101809886208632412859901111991219963404685792820473369112545269003989026153245931124316702395758705693679364790903497461147071065254193353938124978226307947312410798874869040070279328428810311754844108094878252494866760969586998128982645877596028979171536962503068429617331702184750324583009171832104916050157628886606372145501702225925125224076829605427173573964812995250569412480720738476855293681666712844831190877620606786663862190240118570736831901886479225810414714078935386562497968178729127629594924411960961386713946279899275006954917139758796061223803393537381034666494402951052059047968693255388647930440925104186817009640171764133172418132836351"
-)
+DEFAULT_M1 = DEFAULT_B1
+DEFAULT_M2 = DEFAULT_B2
 
 @bp.route("/q6", methods=["GET"])
 def q6():
@@ -217,8 +169,6 @@ def q6():
     m1 = mpz(b1_param) if b1_param else DEFAULT_M1
     m2 = mpz(b2_param) if b2_param else DEFAULT_M2
 
-    # The exponents corresponding to these Mersenne primes
-    # Using the original exponents from Q3
     exp1 = 2203
     exp2 = 2281
 
@@ -227,11 +177,10 @@ def q6():
 
     return jsonify({"results": [res1, res2]})
 
+
 # ---------- Q7 ----------
-# Try to express a large odd N as p1 + p2 + p3 with p1 small prime and p2,p3 primes.
-# Use randomization + gmpy2.next_prime to find candidates quickly.
 def weak_goldbach_three_primes(N, trials=1000):
-    small_primes = [3, 5, 7, 11, 13, 17, 19]
+    small_primes = [3,5,7,11,13,17,19]
     for p1 in small_primes:
         remainder = N - p1
         if remainder % 2 != 0:
@@ -245,13 +194,24 @@ def weak_goldbach_three_primes(N, trials=1000):
             candidate = next_prime(candidate)
     return None
 
-@bp.route("/q7", methods=["GET"])
+@bp.route("/q7", methods=["POST"])
 def q7():
-    lower = 10**49
-    upper = 10**50 - 1
-    N = mpz(random.randrange(lower, upper) | 1)  # random odd 50-digit
-    triple = weak_goldbach_three_primes(N)
-    if triple:
-        return jsonify({"random_base": str(N), "primes_triple": [str(x) for x in triple]})
-    else:
-        return jsonify({"random_base": str(N), "primes_triple": [], "message": "No decomposition found"})
+    data = request.get_json() or {}
+    number = data.get("number")
+    try:
+        if number:
+            N = mpz(int(number))
+            if N % 2 == 0:
+                N += 1
+        else:
+            lower = 10**49
+            upper = 10**50 - 1
+            N = mpz(random.randrange(lower, upper) | 1)
+
+        triple = weak_goldbach_three_primes(N)
+        if triple:
+            return jsonify({"random_base": str(N), "primes_triple": [str(x) for x in triple]})
+        else:
+            return jsonify({"random_base": str(N), "primes_triple": [], "message": "No decomposition found"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

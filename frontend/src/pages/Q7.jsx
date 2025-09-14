@@ -95,7 +95,7 @@ const styles = {
     borderRadius: "8px",
     cursor: "pointer",
     display: "block",
-    margin: "0 auto",
+    margin: "0.5rem auto",
     transition: "0.3s",
   },
   outputBox: {
@@ -105,21 +105,39 @@ const styles = {
     borderRadius: "8px",
     fontFamily: "monospace",
     whiteSpace: "pre-wrap",
-    wordWrap: "break-word", // ✅ wrap long numbers
+    wordWrap: "break-word",
     boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)",
     color: "#000",
+  },
+  input: {
+    width: "100%",
+    padding: "0.5rem",
+    fontSize: "1rem",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    marginBottom: "1rem",
   },
 };
 
 function Q7() {
+  const [inputNumber, setInputNumber] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const runCode = async () => {
+    if (!inputNumber) {
+      setResult("Please enter a number");
+      return;
+    }
     setLoading(true);
     setResult(null);
+
     try {
-      const res = await axios.get("http://127.0.0.1:5001/api/q7");
+      // Send inputNumber to backend
+      const res = await axios.post("http://127.0.0.1:5001/api/q7", {
+        number: inputNumber,
+      });
+
       if (res.data?.random_base) {
         let output = `Random number:\n${res.data.random_base}\n\n`;
         if (res.data.primes_triple?.length) {
@@ -144,6 +162,16 @@ function Q7() {
         <h2 style={styles.title}>Question 7</h2>
         <p style={styles.questionBox}>{questionText}</p>
 
+        {/* Input field for dynamic number */}
+        <input
+          type="text"
+          placeholder="Enter a number here..."
+          value={inputNumber}
+          onChange={(e) => setInputNumber(e.target.value)}
+          style={styles.input}
+        />
+
+        {/* Python code display */}
         <div style={styles.codeBox}>
           <pre>{pythonCode}</pre>
         </div>
