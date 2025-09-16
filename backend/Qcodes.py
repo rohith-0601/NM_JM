@@ -145,37 +145,37 @@ def q5():
 
 
 # ---------- Q6 ----------
-def check_perfect(p, mprime):
-    n = (mpz(1) << (p - 1)) * mprime
-    s1 = (mpz(1) << p) - 1
-    s2 = mprime + 1
+def check_perfect(p):
+    # candidate Mersenne prime
+    mersenne = (mpz(1) << p) - 1  
+
+    # check primality
+    if not mersenne.is_prime():
+        return {
+            "p": p,
+            "mersenne_prime": str(mersenne),
+            "result": "not perfect (Mersenne not prime)"
+        }
+
+    # construct the perfect number
+    n = (mpz(1) << (p - 1)) * mersenne  
     return {
         "p": p,
-        "mersenne_prime": str(mprime),
+        "mersenne_prime": str(mersenne),
         "N": str(n),
-        "sigma_N": str(s1 * s2),
-        "2N": str(2 * n),
-        "result": "perfect" if (s1 * s2) == 2 * n else "not perfect"
+        "result": "perfect"
     }
 
-DEFAULT_M1 = DEFAULT_B1
-DEFAULT_M2 = DEFAULT_B2
+DEFAULT_P = 2
 
 @bp.route("/q6", methods=["GET"])
 def q6():
-    b1_param = request.args.get("b1")
-    b2_param = request.args.get("b2")
+    p_param = request.args.get("p")
+    p = int(p_param) if p_param else DEFAULT_P
 
-    m1 = mpz(b1_param) if b1_param else DEFAULT_M1
-    m2 = mpz(b2_param) if b2_param else DEFAULT_M2
+    res = check_perfect(p)
 
-    exp1 = 2203
-    exp2 = 2281
-
-    res1 = check_perfect(exp1, m1)
-    res2 = check_perfect(exp2, m2)
-
-    return jsonify({"results": [res1, res2]})
+    return jsonify({"result": res})
 
 
 # ---------- Q7 ----------

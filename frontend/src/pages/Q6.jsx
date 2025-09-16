@@ -2,23 +2,25 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const questionText = `
-Check whether given numbers constructed with Mersenne primes
-form perfect numbers using the sigma function.
-Only the resulting numbers (N) will be displayed.
+Check whether a number constructed with a Mersenne prime
+forms a perfect number using the sigma function.
 `;
 
 const pythonCode = `
-def check_perfect(p, mprime):
-    n = (mpz(1) << (p - 1)) * mprime
-    s1 = (mpz(1) << p) - 1
-    s2 = mprime + 1
+def check_perfect(p):
+    mersenne = (mpz(1) << p) - 1  
+    if not mersenne.is_prime():
+        return {
+            "p": p,
+            "mersenne_prime": str(mersenne),
+            "result": "not perfect (Mersenne not prime)"
+        }
+    n = (mpz(1) << (p - 1)) * mersenne  
     return {
         "p": p,
-        "mersenne_prime": str(mprime),
+        "mersenne_prime": str(mersenne),
         "N": str(n),
-        "sigma_N": str(s1 * s2),
-        "2N": str(2 * n),
-        "result": "perfect" if (s1 * s2) == 2 * n else "not perfect"
+        "result": "perfect"
     }
 `;
 
@@ -36,9 +38,8 @@ const styles = {
 };
 
 function Q6() {
-  const [b1, setB1] = useState("");
-  const [b2, setB2] = useState("");
-  const [result, setResult] = useState([]);
+  const [p, setP] = useState("");
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [seconds, setSeconds] = useState(0);
 
@@ -53,23 +54,21 @@ function Q6() {
 
   const runCode = async () => {
     setLoading(true);
-    setResult([]);
+    setResult(null);
     try {
       const params = {};
-      if (b1) params.b1 = b1;
-      if (b2) params.b2 = b2;
+      if (p) params.p = p;
 
       const res = await axios.get("http://127.0.0.1:5001/api/q6", { params });
 
-      if (res.data?.results) {
-        const numbers = res.data.results.map((r) => r.N);
-        setResult(numbers.join("\n"));
+      if (res.data?.result) {
+        setResult(res.data.result);
       } else {
-        setResult(["No numbers found"]);
+        setResult({ error: "No result found" });
       }
     } catch (err) {
       console.error(err);
-      setResult(["Error fetching results"]);
+      setResult({ error: "Error fetching results" });
     }
     setLoading(false);
   };
@@ -81,8 +80,13 @@ function Q6() {
         <p style={styles.questionBox}>{questionText}</p>
 
         <div style={styles.inputRow}>
-          <input type="text" placeholder="Optional: b1 Mersenne prime" style={styles.inputBox} value={b1} onChange={(e) => setB1(e.target.value)} />
-          <input type="text" placeholder="Optional: b2 Mersenne prime" style={styles.inputBox} value={b2} onChange={(e) => setB2(e.target.value)} />
+          <input
+            type="text"
+            placeholder="Enter exponent p"
+            style={styles.inputBox}
+            value={p}
+            onChange={(e) => setP(e.target.value)}
+          />
         </div>
 
         <div style={styles.codeBox}>
@@ -100,11 +104,18 @@ function Q6() {
           {loading ? "Running..." : "Run Code ▶"}
         </button>
 
-        {result.length > 0 && (
+        {result && (
           <div style={styles.outputBox}>
-            {result.map((n, i) => (
-              <div key={i}>{n}</div>
-            ))}
+            {result.error ? (
+              <div>{result.error}</div>
+            ) : (
+              <>
+                <div><strong>p:</strong> {result.p}</div>
+                <div><strong>Mersenne Prime:</strong> {result.mersenne_prime}</div>
+                {result.N && <div><strong>N:</strong> {result.N}</div>}
+                <div><strong>Result:</strong> {result.result}</div>
+              </>
+            )}
           </div>
         )}
       </div>
