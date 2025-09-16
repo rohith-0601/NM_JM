@@ -179,20 +179,24 @@ def q6():
 
 
 # ---------- Q7 ----------
-def weak_goldbach_three_primes(N, trials=1000):
-    small_primes = [3,5,7,11,13,17,19]
+def weak_goldbach_three_primes(N):
+    # Include 2, since small decompositions often require it
+    small_primes = [2, 3, 5, 7, 11, 13, 17, 19]
+
     for p1 in small_primes:
         remainder = N - p1
-        if remainder % 2 != 0:
+        if remainder < 4:  # need at least 2+2
             continue
-        candidate = next_prime(remainder // 2)
-        for _ in range(trials):
-            p2 = candidate
-            p3 = remainder - p2
-            if p3 > 1 and is_prime(p3):
-                return (p1, int(p2), int(p3))
-            candidate = next_prime(candidate)
+
+        # Check if remainder can be expressed as sum of two primes
+        for p2 in range(2, remainder // 2 + 1):
+            if is_prime(p2):
+                p3 = remainder - p2
+                if is_prime(p3):
+                    return (p1, p2, p3)
+
     return None
+
 
 @bp.route("/q7", methods=["POST"])
 def q7():
